@@ -3,10 +3,19 @@ import sys
 import cv2
 import numpy as np
 
-pygame.mixer.pre_init(44100,16,2,4096)
 pygame.init()
+
+display_width = 1920
+display_height = 960
+
+pygame.mixer.pre_init(44100,16,2,4096)
 pygame.display.set_caption("Pro Boxer 5")
-win = pygame.display.set_mode((1920,960))
+win = pygame.display.set_mode((display_width,display_height))
+
+title = pygame.image.load("Pro-Boxer-.png")
+title_rect = title.get_rect()
+begin_prompt = pygame.image.load("begin prompt.png")
+begin_prompt_rect = begin_prompt.get_rect()
 
 player_x = 100
 player_y = 660
@@ -28,16 +37,23 @@ pygame.mixer.music.load("Music.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
 '''
+isMenu = True
 run = True
 
 while run:
-
+    
     pygame.time.delay(10)
     
     #Break Condtion
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
+    if isMenu:
+        win.blit(title, (display_width/2 - title_rect.width/2, display_height/6))
+        win.blit(begin_prompt, (display_width/2 - begin_prompt_rect.width/2, 6*display_height/7))
+        pygame.display.update()
+        continue
     
     #Refresh Background
     win.fill((0))
@@ -82,3 +98,5 @@ while run:
     pygame.draw.rect(win,(0,255,0),(bag_x,bag_y,width,height))
     pygame.draw.rect(win,(255,0,0),(player_x,player_y,width,height))
     pygame.display.update()
+    
+    
