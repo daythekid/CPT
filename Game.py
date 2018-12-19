@@ -28,6 +28,7 @@ bag_y = 660
 isJump = False
 jumpCount = 10
 
+global punchCount, maxarmLength
 isPunch = False
 punchCount = 10
 maxarmLength = (punchCount ** 2)
@@ -39,6 +40,29 @@ pygame.mixer.music.play(-1)
 '''
 isMenu = True
 run = True
+
+def punch():
+    if punchCount >= -10:
+        neg = 1
+        if jumpCount < 0:
+            neg = -1
+        armLength = maxarmLength - (punchCount ** 2) * neg
+        punchCount -= 1
+        pygame.draw.rect(win,(255,0,0),(player_x + width, player_y + 100, armLength, 50))
+    else:
+        isPunch = False
+        punchCount = 10
+
+def jump():
+    if jumpCount >= -10:
+        neg = 1
+        if jumpCount < 0:
+            neg = -1
+        player_y -= (jumpCount ** 2) * 0.7 * neg
+        jumpCount -= 1
+    else:
+        isJump = False
+        jumpCount = 10
 
 while run:
     
@@ -70,30 +94,13 @@ while run:
         if keys[pygame.K_UP]:
             isPunch = True
     else:
-        if punchCount >= -10:
-            neg = 1
-            if jumpCount < 0:
-                neg = -1
-            armLength = maxarmLength - (punchCount ** 2) * neg
-            punchCount -= 1
-            pygame.draw.rect(win,(255,0,0),(player_x + width, player_y + 100, armLength, 50))
-        else:
-            isPunch = False
-            punchCount = 10
+        punch()
 
     if not isJump:
         if keys[pygame.K_SPACE]:
             isJump = True
     else:
-        if jumpCount >= -10:
-            neg = 1
-            if jumpCount < 0:
-                neg = -1
-            player_y -= (jumpCount ** 2) * 0.7 * neg
-            jumpCount -= 1
-        else:
-            isJump = False
-            jumpCount = 10
+        jump()
     
     pygame.draw.rect(win,(0,255,0),(bag_x,bag_y,width,height))
     pygame.draw.rect(win,(255,0,0),(player_x,player_y,width,height))
