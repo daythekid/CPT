@@ -16,4 +16,3 @@ while True:
         print(position)
 
 camera.release()
-cv2.distoryAllWindows()
