@@ -39,7 +39,7 @@ height = 300
 bag_x = 1750
 bag_y = 660
 
-
+'''
 def jump():
     global jumpCount,isJump,player_y
     if jumpCount >= -10:
@@ -51,7 +51,7 @@ def jump():
     else:
         isJump = False
         jumpCount = 10
-
+'''
 def punch():
     global punchCount,maxarmLength, isPunch
     if punchCount >= -10:
@@ -82,7 +82,7 @@ while run:
     if isMenu:
         win.blit(title, (displayWidth/2 - title_rect.width/2, displayHeight/6))
         win.blit(begin_prompt, (displayWidth/2 - begin_prompt_rect.width/2, 6*displayHeight/7))
-        pygame.display.update()
+        pygame.display.update() # consider removing
         
         
         if jump_button == 1 or punch_button == 1:
@@ -92,7 +92,7 @@ while run:
     win.fill((0))
     
     #Movement for rectangle
-    keys = pygame.key.get_pressed()
+
     try:
         player_x = position
     except:
@@ -104,7 +104,15 @@ while run:
         punch()
 
     if jump_button == 1:
-        jump()
+        if jumpCount >= -10:
+        neg = 1
+        if jumpCount < 0:
+            neg = -1
+        player_y -= (jumpCount ** 2) * 0.7 * neg
+        jumpCount -= 1
+        else:
+            isJump = False
+            jumpCount = 10
     
     pygame.draw.rect(win,(0,255,0),(bag_x,bag_y,width,height))
     pygame.draw.rect(win,(255,0,0),(player_x,player_y,width,height))
