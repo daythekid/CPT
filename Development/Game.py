@@ -1,7 +1,10 @@
 import pygame
 import sys
 import cv2
-import numpy as np
+import threading
+
+global position
+
 
 # Music and intial variables
 pygame.mixer.pre_init(44100,16,2,4096)
@@ -10,7 +13,10 @@ pygame.joystick.init()
 pygame.display.set_caption("Pro Boxer 5")
 
 face_cascade = cv2.CascadeClassifier("face.xml")
-camera = cv2.VideoCapture(0)
+try:
+    camera = cv2.VideoCapture(0)
+except:
+    print("No camera found!")
 
 displayWidth = 1920
 displayHeight = 960
@@ -27,8 +33,8 @@ isJump = False
 jumpCount = 15
 
 isPunch = False
-punchCount = 15
-maxarmLength = (punchCount ** 2)
+startPunch = False
+punchTimer = 20
 
 title = pygame.image.load("Pro-Boxer-.png")
 title_rect = title.get_rect()
@@ -40,26 +46,13 @@ player_x = 100
 player_y = 660
 player_health = 100
 
-bag_x = 1750
+bag_x = 1000
 bag_y = 660
 bag_health = 100
 
 width = 125
 height = 300
-'''
-def punch():
-    global punchCount,maxarmLength, isPunch
-    if punchCount >= -10:
-        neg = 1
-        if punchCount < 0:
-            neg = -1
-        armLength = maxarmLength - (punchCount ** 2) * 0.2 * neg
-        punchCount -= 1
-        pygame.draw.rect(win,(255,0,0),(player_x + width, player_y + 100, armLength, 50))
-    else:
-        isPunch = False
-        punchCount = 10
-'''
+
 while run:
     for event in pygame.event.get():
         if event.type == pygame.JOYBUTTONDOWN:
@@ -75,7 +68,7 @@ while run:
     punch_button = joystick.get_button( 1 )
 
 
-    global position
+    
     ret,img = camera.read()
     #Converts video feed to gray
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -105,7 +98,20 @@ while run:
         player_x = 100
     
     if punch_button == 1:
-        pygame.draw.rect(win,(255,0,0),(player_x + width, player_y + 100, 100, 50))
+        startPunch = True
+  
+    if not isPunch:
+        isPunch = True
+    elif startPunch:
+        punchTimer -= 1
+        if punchTimer > 10:
+            pygame.draw.rect(win,(255,0,0),(player_x + width, player_y + 100, 100, 50))
+        elif punchTimer <= 0:
+            if player_x + width + 100 > bag_x:
+                bag_health -= 5
+            isPunch = False
+            startPunch = False
+            punchTimer = 20
 
     if not isJump:
         if jump_button == 1:
@@ -122,7 +128,9 @@ while run:
             jumpCount = 15
     
     pygame.draw.rect(win,(0,255,0),(bag_x,bag_y,width,height))
-    pygame.draw.rect(win,(0,255,0),(displayWidth-650,50,600,50),5)
-    pygame.draw.rect(win,(0,255,0),(displayWidth-650+))
+    pygame.draw.rect(win,(0,255,0),(displayWidth-650,50,600,50),2)
+    pygame.draw.rect(win,(0,255,0),(displayWidth-50,50,bag_health*(-6),50))
     pygame.draw.rect(win,(255,0,0),(player_x,player_y,width,height))
+    pygame.draw.rect(win,(255,0,0),(50,50,600,50),2)
+    pygame.draw.rect(win,(255,0,0),(50,50,player_health*6,50))
     pygame.display.update()
