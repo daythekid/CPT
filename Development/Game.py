@@ -5,9 +5,20 @@ import threading
 import time
 import random
 
-run = True
+global win, position, run, displayHeight, displayWidth, width, height, playerJump, playerPunch, player_x, player_y, player_health, bot_health, botJump, bot_x, bot_y
+
 displayWidth = 1920
 displayHeight = 960
+
+pygame.mixer.pre_init(44100,16,2,4096)
+pygame.init()
+pygame.joystick.init()
+pygame.display.set_caption("Pro Boxer 5")
+
+win = pygame.display.set_mode((displayWidth,displayHeight))
+
+run = True
+isMenu = True
 width = 125
 height = 300
 position = 0
@@ -38,15 +49,9 @@ def opencv():
 
         for (x,y,w,h) in faces:
             position = x+(w/2)
-            
+'''    
 def botmove():
-    global run, displayHeight, displayWidth, width, height, playerJump, playerPunch, player_x, player_y, player_health, bot_health, botJump, bot_x, bot_y
-
-    title = pygame.image.load("Pro-Boxer-.png")
-    title_rect = title.get_rect()
-    begin_prompt = pygame.image.load("begin prompt.png")
-    begin_prompt_rect = begin_prompt.get_rect()
-    isMenu = True
+    global win, position, run, displayHeight, displayWidth, width, height, playerJump, playerPunch, player_x, player_y, player_health, bot_health, botJump, bot_x, bot_y, isMenu
 
     startPunch = False
     botPunch = False
@@ -56,8 +61,7 @@ def botmove():
 
     moveBack = False
 
-    while run:
-        print(1)
+    while run and not isMenu:
         if playerPunch:
             if random.randint(1,2) == 1:
                 botJump = True
@@ -98,26 +102,24 @@ def botmove():
         pygame.draw.rect(win,(0,255,0),(bot_x,bot_y,width,height))
         pygame.draw.rect(win,(0,255,0),(displayWidth-650,50,600,50),2)
         pygame.draw.rect(win,(0,255,0),(displayWidth-50,50,bot_health*(-6),50))
-
+'''
 def main():
+    global win, position, run, displayHeight, displayWidth, width, height, playerJump, playerPunch, player_x, player_y, player_health, bot_health, botJump, bot_x, bot_y, isMenu
+    
     # Music and intial variables
-    pygame.mixer.pre_init(44100,16,2,4096)
-    pygame.init()
-    pygame.joystick.init()
-    pygame.display.set_caption("Pro Boxer 5")
-
-    win = pygame.display.set_mode((displayWidth,displayHeight))
-
     pygame.mixer.music.load("song.mp3")
     pygame.mixer.music.set_volume(0.5)
     pygame.mixer.music.play(-1)
+
+    title = pygame.image.load("Pro-Boxer-.png")
+    title_rect = title.get_rect()
+    begin_prompt = pygame.image.load("begin prompt.png")
+    begin_prompt_rect = begin_prompt.get_rect()
 
     startPunch = False
     punchTimer = 20
 
     jumpCount = 15
-
-    global position, run, displayHeight, displayWidth, width, height, playerJump, playerPunch, player_x, player_y, player_health, bot_health, botJump, bot_x, bot_y
 
     while run:
         for event in pygame.event.get():
@@ -189,8 +191,8 @@ def main():
 
 opencv_thread = threading.Thread(name="OpenCV Thread", target=opencv)
 pygame_thread = threading.Thread(name="PyGame Thread", target=main)
-bot_thread = threading.Thread(name="Bot Thread", target=botmove)
+#bot_thread = threading.Thread(name="Bot Thread", target=botmove)
 
-bot_thread.start()
+#bot_thread.start()
 opencv_thread.start()
 pygame_thread.start()
