@@ -1,5 +1,5 @@
-Pygame - version 4.0.0
-Opencv - version 1.9.4
+Pygame - version 4.0.0 (latest version - pip install pygame)
+Opencv - version 1.9.4 (latest version - pip install opencv-python)
 
 USB NES controller
 Web cam to use for facial recognition
