@@ -15,6 +15,8 @@ displayHeight = 960
 pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.init()
 pygame.joystick.init()
+pygame.font.init()
+myfont = pygame.font.SysFont('Comic Sans MS', 30)
 pygame.display.set_caption("Pro Boxer 5")
 
 win = pygame.display.set_mode((displayWidth, displayHeight))
@@ -66,18 +68,22 @@ def botmove():
     jumpCount = 15
 
     moveBack = False
-
-    while run and not isMenu:
+    while run:        
+        if isMenu:
+            continue
         if playerPunch:
             if random.randint(1, 2) == 1:
                 botJump = True
 
-        if moveBack and bot_x <= displayWidth - width - 100:
-            bot_x += 15
+        if moveBack:
+            if bot_x <= displayWidth - width - 100:
+                bot_x += 1
+            else:
+                moveBack = False
         elif bot_x - 125 <= player_x + width:
             startPunch = True
         else:
-            bot_x -= 15
+            bot_x -= 1
 
         if startPunch:
             if not botPunch:
@@ -85,8 +91,8 @@ def botmove():
             elif startPunch:
                 punchTimer -= 1
                 if punchTimer > 10:
-                    pygame.draw.rect(win, (255, 0, 0), (bot_x + width, bot_y + 100, 100, 50))
-                elif punchTimer <= 0:
+                    pygame.draw.rect(win, (0, 255, 0), (bot_x, bot_y + 100, -100, 50))
+                elif punchTimer <= 10:
                     if bot_x - 100 < player_x + width and not playerJump:
                         player_health -= 5
                         moveBack = True
@@ -104,11 +110,12 @@ def botmove():
             else:
                 botJump = False
                 jumpCount = 15
-
+'''
         pygame.draw.rect(win, (0, 255, 0), (bot_x, bot_y, width, height))
         pygame.draw.rect(win, (0, 255, 0), (displayWidth-650, 50, 600, 50), 2)
         pygame.draw.rect(win, (0, 255, 0), (displayWidth-50, 50, bot_health*(-6), 50))
-
+        pygame.display.update()
+'''
 
 def main():
     global win, position, run, displayHeight, displayWidth, width, height
@@ -124,6 +131,8 @@ def main():
     title_rect = title.get_rect()
     begin_prompt = pygame.image.load("begin prompt.png")
     begin_prompt_rect = begin_prompt.get_rect()
+    #background = pygame.transform.scale(pygame.image.load("background.gif"),(1920,1080))
+    #background_rect = background.get_rect()
 
     startPunch = False
     punchTimer = 20
@@ -158,7 +167,7 @@ def main():
             continue
 
         # Refresh Background
-        win.fill((0))
+        #win.blit(background, background_rect)
 
         # Movement for rectangle
         # print(position)
@@ -194,17 +203,41 @@ def main():
             else:
                 playerJump = False
                 jumpCount = 15
-
+        
+        if bot_health == 0:
+            return True
+            run = False
+        if player_health == 0:
+            return False
+            run = False
+'''
+        pygame.draw.rect(win, (255, 0, 0), (player_x, player_y, width, height))
+        pygame.draw.rect(win, (255, 0, 0), (50, 50, 600, 50), 2)
+        pygame.draw.rect(win, (255, 0, 0), (50, 50, player_health*6, 50))
+        pygame.display.update()
+'''
+def drawScreen():
+    global player_x
+    background = pygame.transform.scale(pygame.image.load("background.gif"),(1920,1080))
+    background_rect = background.get_rect()
+    while run:
+        if isMenu:
+            continue
+        win.blit(background, background_rect)
+        pygame.draw.rect(win, (0, 255, 0), (bot_x, bot_y, width, height))
+        pygame.draw.rect(win, (0, 255, 0), (displayWidth-650, 50, 600, 50), 2)
+        pygame.draw.rect(win, (0, 255, 0), (displayWidth-50, 50, bot_health*(-6), 50))
         pygame.draw.rect(win, (255, 0, 0), (player_x, player_y, width, height))
         pygame.draw.rect(win, (255, 0, 0), (50, 50, 600, 50), 2)
         pygame.draw.rect(win, (255, 0, 0), (50, 50, player_health*6, 50))
         pygame.display.update()
 
-
 opencv_thread = threading.Thread(name="OpenCV Thread", target=opencv)
 pygame_thread = threading.Thread(name="PyGame Thread", target=main)
 bot_thread = threading.Thread(name="Bot Thread", target=botmove)
+draw_thread = threading.Thread(name="Draw Thread", target=drawScreen)
 
-bot_thread.start()
-# opencv_thread.start()
+opencv_thread.start()
 pygame_thread.start()
+bot_thread.start()
+draw_thread.start()
