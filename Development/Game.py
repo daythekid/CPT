@@ -72,18 +72,18 @@ def botmove():
         if isMenu:
             continue
         if playerPunch:
-            if random.randint(1, 2) == 1:
+            if random.randint(0, 1) == 1:
                 botJump = True
 
         if moveBack:
             if bot_x <= displayWidth - width - 100:
-                bot_x += 1
+                bot_x += 3
             else:
                 moveBack = False
-        elif bot_x - 125 <= player_x + width:
+        elif bot_x - 75 <= player_x + width:
             startPunch = True
         else:
-            bot_x -= 1
+            bot_x -= 3
 
         if startPunch:
             if not botPunch:
