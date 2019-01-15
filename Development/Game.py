@@ -96,7 +96,7 @@ def botmove():
                     if bot_x - 100 < player_x + width and not playerJump:
                         player_health -= 5
                         moveBack = True
-                    botPunch = False
+                    botPunch = True
                     startPunch = False
                     punchTimer = 20
 
