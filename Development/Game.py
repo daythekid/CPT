@@ -40,7 +40,7 @@ botJump = False
 
 bot_x = displayWidth - width - 100
 bot_y = 660
-
+win_or_lose = False
 
 def opencv():
     global position
@@ -59,7 +59,7 @@ def opencv():
 def botmove():
     global win, position, run, displayHeight, displayWidth, width, height
     global playerJump, playerPunch, player_x, player_y, player_health
-    global bot_health, botJump, bot_x, bot_y, isMenu
+    global bot_health, botJump, bot_x, bot_y, isMenu, win_or_lose
 
     startPunch = False
     botPunch = False
@@ -110,17 +110,11 @@ def botmove():
             else:
                 botJump = False
                 jumpCount = 15
-'''
-        pygame.draw.rect(win, (0, 255, 0), (bot_x, bot_y, width, height))
-        pygame.draw.rect(win, (0, 255, 0), (displayWidth-650, 50, 600, 50), 2)
-        pygame.draw.rect(win, (0, 255, 0), (displayWidth-50, 50, bot_health*(-6), 50))
-        pygame.display.update()
-'''
 
 def main():
     global win, position, run, displayHeight, displayWidth, width, height
     global playerJump, playerPunch, player_x, player_y, player_health
-    global bot_health, botJump, bot_x, bot_y, isMenu
+    global bot_health, botJump, bot_x, bot_y, isMenu, win_or_lose
 
     # Music and intial variables
     pygame.mixer.music.load("music.mp3")
@@ -205,19 +199,17 @@ def main():
                 jumpCount = 15
         
         if bot_health == 0:
-            return True
+            win_or_lose = True
             run = False
         if player_health == 0:
-            return False
+            win_or_lose = False
             run = False
-'''
-        pygame.draw.rect(win, (255, 0, 0), (player_x, player_y, width, height))
-        pygame.draw.rect(win, (255, 0, 0), (50, 50, 600, 50), 2)
-        pygame.draw.rect(win, (255, 0, 0), (50, 50, player_health*6, 50))
-        pygame.display.update()
-'''
+
 def drawScreen():
-    global player_x
+    global win, position, run, displayHeight, displayWidth, width, height
+    global playerJump, playerPunch, player_x, player_y, player_health
+    global bot_health, botJump, bot_x, bot_y, isMenu, win_or_lose
+    
     background = pygame.transform.scale(pygame.image.load("background.gif"),(1920,1080))
     background_rect = background.get_rect()
     while run:
@@ -231,6 +223,10 @@ def drawScreen():
         pygame.draw.rect(win, (255, 0, 0), (50, 50, 600, 50), 2)
         pygame.draw.rect(win, (255, 0, 0), (50, 50, player_health*6, 50))
         pygame.display.update()
+    if not run and win_or_lose:
+        print("You won")
+    elif not run and not win_or_lose:
+        print("You Lost")
 
 opencv_thread = threading.Thread(name="OpenCV Thread", target=opencv)
 pygame_thread = threading.Thread(name="PyGame Thread", target=main)
@@ -238,6 +234,7 @@ bot_thread = threading.Thread(name="Bot Thread", target=botmove)
 draw_thread = threading.Thread(name="Draw Thread", target=drawScreen)
 
 opencv_thread.start()
+time.sleep(2)
 pygame_thread.start()
 bot_thread.start()
 draw_thread.start()
