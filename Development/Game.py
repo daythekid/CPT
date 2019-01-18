@@ -1,45 +1,29 @@
 import pygame
 import cv2
 import threading
-import time
 import random
 
 displayWidth = 1920
 displayHeight = 960
 
-pygame.mixer.pre_init(44100, 16, 2, 4096)
-pygame.init()
-pygame.joystick.init()
-pygame.font.init()
-myfont = pygame.font.SysFont('Comic Sans MS', 30)
+win = pygame.display.set_mode((displayWidth, displayHeight))
 pygame.display.set_caption("Pro Boxer 5")
 
-win = pygame.display.set_mode((displayWidth, displayHeight))
+pygame.init()
+pygame.joystick.init()
 
-run = True
-isMenu = True
-width = 125
-height = 300
-position = 0
-
-playerJump = False
-jumpCount = 15
-jumpCooldown = 20
-
-player_x = 100
-player_y = 660
-player_health = 100
-
-bot_health = 100
-
-bot_x = displayWidth - width - 100
-bot_y = 660
-win_or_lose = False
-
-# Music and intial variables
+pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.mixer.music.load("music.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
+
+
+pygame.font.init()
+myfont = pygame.font.SysFont('Comic Sans MS', 30)
+
+run = True
+isMenu = True
+
 
 def opencv():
     global position
@@ -54,8 +38,30 @@ def opencv():
         for (x, y, w, h) in faces:
             position = x + (w/2)
 
-opencv_thread = threading.Thread(name="OpenCV Thread", target=opencv)
+opencv_thread = threading.Thread(name="Facial Detection", target=opencv)
 opencv_thread.start()
+
+width = 125
+height = 300
+position = 0
+
+# Variables for player
+playerJump = False
+jumpCount = 15
+jumpCooldown = 20
+
+player_x = 100
+player_y = 660
+player_health = 100
+
+startPunch = False
+punchTimer = 10
+punchCooldown = 0
+
+# Variables for bot
+bot_x = displayWidth - width - 100
+bot_y = 660
+bot_health = 100
 
 bot_startPunch = False
 bot_punchTimer = 10
@@ -64,27 +70,29 @@ bot_punchCooldown = 0
 botJump = False
 bot_jumpCount = 15
 bot_jumpCooldown = 20
+
 moveBack = False
 
+# Menu Screen and background
 title = pygame.image.load("Pro-Boxer-.png")
 title_rect = title.get_rect()
 begin_prompt = pygame.image.load("begin prompt.png")
 begin_prompt_rect = begin_prompt.get_rect()
-background = pygame.transform.scale(pygame.image.load("background.gif"),(1920,1080))
+background = pygame.transform.scale(pygame.image.load("background.gif"), (1920, 1080))
 background_rect = background.get_rect()
 
-startPunch = False
-punchTimer = 10
-punchCooldown = 0
+win_screen = pygame.transform.scale(pygame.image.load("win_screen.jpg"), (1920, 1080))
+win_rect = win_screen.get_rect()
+lose_screen = pygame.transform.scale(pygame.image.load("lose_screen.jpg"), (1920, 1080))
+lose_rect = lose_screen.get_rect()
 
 while run:
+
     for event in pygame.event.get():
-        if event.type == pygame.JOYBUTTONDOWN:
-            print("pressed")
-        if event.type == pygame.JOYBUTTONUP:
-            print("released")
         if event.type == pygame.QUIT:
             run = False
+    
+    # Testing for joystick
     try:
         joystick = pygame.joystick.Joystick(0)
         joystick.init()
@@ -92,6 +100,7 @@ while run:
         print("There was an error finding your joystick.")
         print("Please try again.")
         break
+    
     jump_button = joystick.get_button(0)
     punch_button = joystick.get_button(1)
 
@@ -100,7 +109,7 @@ while run:
     if isMenu:
         win.blit(title, (displayWidth/2 - title_rect.width/2, displayHeight/6))
         win.blit(begin_prompt, (displayWidth/2 - begin_prompt_rect.width/2, 6*displayHeight/7))
-        pygame.display.update()  # consider removing
+        pygame.display.update()
 
         if jump_button == 1 or punch_button == 1:
             isMenu = False
@@ -109,11 +118,13 @@ while run:
     if (450 - position) * 5 + width < bot_x:
         player_x = (450 - position) * 5
 
-    if punchCooldown == 0: 
+    # Player Control
+    if punchCooldown == 0:
         if punch_button == 1:
             startPunch = True
     else:
         punchCooldown -= 1
+    
     if startPunch:
         punchTimer -= 1
         pygame.draw.rect(win, (255, 0, 0), (player_x + width, player_y + 100, 100, 50))
@@ -129,6 +140,7 @@ while run:
             playerJump = True
     else:
         jumpCooldown -= 1
+    
     if playerJump:
         if jumpCount >= -15:
             neg = 1
@@ -140,8 +152,9 @@ while run:
             playerJump = False
             jumpCount = 15
             jumpCooldown = 50
-    
-    if bot_jumpCooldown == 0:    
+
+    # Bot movement and fighting
+    if bot_jumpCooldown == 0:
         if punchTimer == 1:
             if random.randint(0, 1) == 1:
                 botJump = True
@@ -153,8 +166,10 @@ while run:
             bot_x += 10
         else:
             moveBack = False
+    
     elif bot_x - 75 <= player_x + width:
         bot_startPunch = True
+    
     else:
         bot_x -= 10
 
@@ -179,11 +194,18 @@ while run:
         else:
             botJump = False
             bot_jumpCount = 15
-
+    
+    # Drawing sprites and rectangles
     pygame.draw.rect(win, (0, 255, 0), (bot_x, bot_y, width, height))
     pygame.draw.rect(win, (0, 255, 0), (displayWidth-650, 50, 600, 50), 2)
     pygame.draw.rect(win, (0, 255, 0), (displayWidth-50, 50, bot_health*(-6), 50))
     pygame.draw.rect(win, (255, 0, 0), (player_x, player_y, width, height))
     pygame.draw.rect(win, (255, 0, 0), (50, 50, 600, 50), 2)
     pygame.draw.rect(win, (255, 0, 0), (50, 50, player_health*6, 50))
+    
+    # Winning or losing
+    if player_health <= 0:
+        win.blit(lose_screen, lose_rect)
+    if bot_health <= 0:
+        win.blit(win_screen, win_rect)
     pygame.display.update()
