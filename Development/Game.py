@@ -11,12 +11,24 @@ pygame.display.set_caption("Pro Boxer 5")
 
 pygame.init()
 pygame.joystick.init()
+useJoystick = False
+
+# Testing for joystick
+try:
+    joystick = pygame.joystick.Joystick(0)
+    joystick.init()
+    useJoystick = True
+except:
+    print("There was an error finding your joystick.")
+    print("Please use Z and X instead")
 
 pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.mixer.music.load("music.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
 
+jump_button = 0
+punch_button = 0
 
 pygame.font.init()
 myfont = pygame.font.SysFont('Comic Sans MS', 30)
@@ -91,18 +103,21 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_x:
+                jump_button = 1
+            else:
+                jump_button = 0
+            
+            if event.key == pygame.K_z:
+                punch_button = 1
+            else:
+                punch_button = 0
     
-    # Testing for joystick
-    try:
-        joystick = pygame.joystick.Joystick(0)
-        joystick.init()
-    except:
-        print("There was an error finding your joystick.")
-        print("Please try again.")
-        break
-    
-    jump_button = joystick.get_button(0)
-    punch_button = joystick.get_button(1)
+    if useJoystick:
+        jump_button = joystick.get_button(0)
+        punch_button = joystick.get_button(1)
 
     win.blit(background, background_rect)
 
