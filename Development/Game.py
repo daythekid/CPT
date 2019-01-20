@@ -263,7 +263,6 @@ while run:
         win.blit(pygame.transform.flip(punchingSprite, True, False), (bot_x, bot_y))
     else:
         win.blit(pygame.transform.flip(walkingAnimation[round(bot_animationTimer / 60)], True, False), (bot_x, bot_y))
-        print(round(bot_animationTimer / 60))
         if not botJump:
             bot_animationTimer -= 1
             if bot_animationTimer == -1:
