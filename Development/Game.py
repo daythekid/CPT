@@ -38,7 +38,7 @@ myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
 run = True
 isMenu = True
-'''
+
 def opencv():
     global position
     try:
@@ -57,7 +57,7 @@ def opencv():
 
 opencv_thread = threading.Thread(name="Facial Detection", target=opencv)
 opencv_thread.start()
-'''
+
 width = 154
 height = 300
 position = 0
