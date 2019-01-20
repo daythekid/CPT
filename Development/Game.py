@@ -35,8 +35,7 @@ myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
 run = True
 isMenu = True
-
-
+'''
 def opencv():
     global position
     camera = cv2.VideoCapture(0)
@@ -52,7 +51,7 @@ def opencv():
 
 opencv_thread = threading.Thread(name="Facial Detection", target=opencv)
 opencv_thread.start()
-
+'''
 width = 125
 height = 300
 position = 0
@@ -107,12 +106,13 @@ while run:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_x:
                 jump_button = 1
-            else:
-                jump_button = 0
-            
             if event.key == pygame.K_z:
                 punch_button = 1
-            else:
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_x:
+                jump_button = 0
+            if event.key == pygame.K_z:
                 punch_button = 0
     
     if useJoystick:
