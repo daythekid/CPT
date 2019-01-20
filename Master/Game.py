@@ -29,16 +29,13 @@ pygame.mixer.music.load("music.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
 
-
-pygame.font.init()
-myfont = pygame.font.SysFont('Comic Sans MS', 30)
-
 run = True
 isMenu = True
 
 
 def opencv():
     global position
+    # Testing for camera
     try:
         camera = cv2.VideoCapture(0)
     except:
@@ -47,7 +44,8 @@ def opencv():
     face_cascade = cv2.CascadeClassifier("face.xml")
     while run:
         ret, img = camera.read()
-        # Converts video feed to gray
+
+        # Converts video feed to gray and finds faces
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.3, 5)
         for (x, y, w, h) in faces:
@@ -153,11 +151,13 @@ def test():
     assert collision(230, 60, 260)  # Should return True
     assert collision(132, 30, 152)  # Should return True
     assert not collision(120, 32, 580)  # Should return False
+    print("All tests passed")
 
-test()
+# test()
 
 
 while run:
+    # Keyboard controls and exit method
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -178,7 +178,7 @@ while run:
         punch_button = joystick.get_button(1)
 
     win.blit(background, background_rect)
-
+    # Menu screen
     if isMenu:
         win.blit(title, (displayWidth/2 - title_rect.width/2, displayHeight/6))
         win.blit(begin_prompt, (displayWidth/2 - begin_prompt_rect.width/2, 6*displayHeight/7))
@@ -257,9 +257,10 @@ while run:
             botJump = False
             bot_jumpCount = 15
 
-    # Drawing sprites
+    # Drawing sprites and animations
     if startPunch:
         win.blit(punchingSprite, (player_x, player_y))
+
     else:
         win.blit(walkingAnimation[round(animationTimer / 60)], (player_x, player_y))
         if prevPos != position:
@@ -267,6 +268,7 @@ while run:
             prevPos = position
         if animationTimer == -1:
             animationTimer = 60
+
     if bot_startPunch:
         win.blit(pygame.transform.flip(punchingSprite, True, False), (bot_x, bot_y))
     else:
