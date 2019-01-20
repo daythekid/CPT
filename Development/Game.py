@@ -5,11 +5,7 @@ Lists
 Functions w/ perameters
 """
 
-import pygame
-import cv2
-import sys
-import threading
-import random
+import pygame, cv2, sys, threading, random
 
 displayWidth = 1920
 displayHeight = 960
@@ -42,7 +38,7 @@ myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
 run = True
 isMenu = True
-
+'''
 def opencv():
     global position
     try:
@@ -61,10 +57,11 @@ def opencv():
 
 opencv_thread = threading.Thread(name="Facial Detection", target=opencv)
 opencv_thread.start()
-
-width = 125
+'''
+width = 154
 height = 300
 position = 0
+prevPos = 0
 
 # Variables for player
 playerJump = False
@@ -76,7 +73,7 @@ player_y = 660
 player_health = 100
 
 startPunch = False
-punchTimer = 10
+punchTimer = 20
 punchCooldown = 0
 
 jump_button = 0
@@ -88,7 +85,7 @@ bot_y = 660
 bot_health = 100
 
 bot_startPunch = False
-bot_punchTimer = 10
+bot_punchTimer = 20
 bot_punchCooldown = 0
 
 botJump = False
@@ -104,6 +101,12 @@ begin_prompt = pygame.image.load("begin prompt.png")
 begin_prompt_rect = begin_prompt.get_rect()
 background = pygame.transform.scale(pygame.image.load("background.gif"), (1920, 1080))
 background_rect = background.get_rect()
+
+# Sprites
+punchingSprite = pygame.transform.scale(pygame.image.load("boxer punch.png"), (208, 300))
+walkingAnimation = [pygame.transform.scale(pygame.image.load("boxer walk 1.png"), (154, 300)), pygame.transform.scale(pygame.image.load("boxer walk 2.png"), (175, 300))]
+animationTimer = 60
+bot_animationTimer = 60
 
 #Winning and losing screens
 win_screen = pygame.transform.scale(pygame.image.load("win_screen.jpg"), (1920, 1080))
@@ -148,8 +151,6 @@ def test():
     assert collision(230,60,260) == True
     assert collision(132,30,152) == True
     assert collision(120,32,580) == False
-
-
 
 test()
 
@@ -200,12 +201,12 @@ while run:
     
     if startPunch:
         punchTimer -= 1
-        pygame.draw.rect(win, (255, 0, 0), (player_x + width, player_y + 100, 100, 50))
+        
         if punchTimer == 0:
-            if player_x + width + 100 > bot_x:
+            if player_x + width + 100 > bot_x and not botJump:
                 bot_health -= 5
             startPunch = False
-            punchTimer = 10
+            punchTimer = 20
             punchCooldown = 30
 
     
@@ -231,13 +232,12 @@ while run:
 
     if bot_startPunch:
         bot_punchTimer -= 1
-        pygame.draw.rect(win, (0, 255, 0), (bot_x, bot_y + 100, -100, 50))
         if bot_punchTimer == 0:
             if bot_x - 100 < player_x + width and not playerJump:
                 player_health -= 5
                 moveBack = True
             bot_startPunch = False
-            bot_punchTimer = 10
+            bot_punchTimer = 20
             bot_punchCooldown = 30
 
     if botJump:
@@ -251,12 +251,30 @@ while run:
             botJump = False
             bot_jumpCount = 15
     
-    # Drawing sprites and rectangles
-    pygame.draw.rect(win, (0, 255, 0), (bot_x, bot_y, width, height))
+    # Drawing sprites
+    if startPunch:
+        win.blit(punchingSprite, (player_x, player_y))
+    else:
+        win.blit(walkingAnimation[round(animationTimer / 60)], (player_x, player_y))
+        if  prevPos != position:
+            animationTimer -= 1
+            prevPos = position
+    if bot_startPunch:
+        win.blit(pygame.transform.flip(punchingSprite, True, False), (bot_x, bot_y))
+    else:
+        win.blit(pygame.transform.flip(walkingAnimation[round(bot_animationTimer / 60)], True, False), (bot_x, bot_y))
+        print(round(bot_animationTimer / 60))
+        if not botJump:
+            bot_animationTimer -= 1
+            if bot_animationTimer == -1:
+                bot_animationTimer = 60
+        else:
+            bot_animationTimer = 60
+    
+    # Drawing health bars
     pygame.draw.rect(win, (0, 255, 0), (displayWidth-650, 50, 600, 50), 2)
-    pygame.draw.rect(win, (0, 255, 0), (displayWidth-50, 50, bot_health*(-6), 50))
-    pygame.draw.rect(win, (255, 0, 0), (player_x, player_y, width, height))
     pygame.draw.rect(win, (255, 0, 0), (50, 50, 600, 50), 2)
+    pygame.draw.rect(win, (0, 255, 0), (displayWidth-50, 50, bot_health*(-6), 50))
     pygame.draw.rect(win, (255, 0, 0), (50, 50, player_health*6, 50))
     
     # Winning or losing
